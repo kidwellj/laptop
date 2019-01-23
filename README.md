@@ -1,11 +1,13 @@
 Laptop
 ======
 
-Laptop is a script to set up an macOS laptop for web and mobile development.
+I've forked this script from https://github.com/thoughtbot/laptop. It is a script to set up an macOS laptop for web and mobile development.
 
 It can be run multiple times on the same machine safely.
 It installs, upgrades, or skips packages
 based on what is already installed on the machine.
+
+Note: I have modified this version to suit my own requirements, which tend towards a hybrid of coding (in R and Python) and academic writing.
 
 Requirements
 ------------
@@ -28,7 +30,7 @@ Install
 Download the script:
 
 ```sh
-curl --remote-name https://raw.githubusercontent.com/thoughtbot/laptop/master/mac
+curl --remote-name https://raw.githubusercontent.com/kidwellj/laptop/master/mac
 ```
 
 Review the script (avoid running scripts you haven't read!):
@@ -49,9 +51,10 @@ Optionally, review the log:
 less ~/laptop.log
 ```
 
-Optionally, [install thoughtbot/dotfiles][dotfiles].
+I also use a [dotfiles script][jkdotfiles] which is a fork of [thoughtbot/dotfiles][dotfiles].
 
 [dotfiles]: https://github.com/thoughtbot/dotfiles#install
+[jkdotfiles]: https://github.com/kidwellj/dotfiles#install
 
 Debugging
 ---------
@@ -73,40 +76,38 @@ macOS tools:
 
 Unix tools:
 
-* [Exuberant Ctags] for indexing files for vim tab completion
 * [Git] for version control
 * [OpenSSL] for Transport Layer Security (TLS)
 * [RCM] for managing company and personal dotfiles
-* [The Silver Searcher] for finding things in files
 * [Tmux] for saving project state and switching between projects
-* [Watchman] for watching for filesystem events
 * [Zsh] as your shell
+* [osxfuse]
+* [encfs]
 
-[Exuberant Ctags]: http://ctags.sourceforge.net/
+
 [Git]: https://git-scm.com/
 [OpenSSL]: https://www.openssl.org/
 [RCM]: https://github.com/thoughtbot/rcm
-[The Silver Searcher]: https://github.com/ggreer/the_silver_searcher
 [Tmux]: http://tmux.github.io/
-[Watchman]: https://facebook.github.io/watchman/
 [Zsh]: http://www.zsh.org/
 
-Heroku tools:
+Text tools and writing:
 
-* [Heroku CLI] and [Parity] for interacting with the Heroku API
+* [Pandoc] for [MarkDown] rendering to docx and pdf
+* [CsvFIX]
 
-[Heroku CLI]: https://devcenter.heroku.com/articles/heroku-cli
-[Parity]: https://github.com/thoughtbot/parity
+[Pandoc]: https://pandoc.org/
+[Markdown]: https://daringfireball.net/projects/markdown/
 
-GitHub tools:
+Geospatial tools:
 
-* [Hub] for interacting with the GitHub API
+* [gdal]
 
-[Hub]: http://hub.github.com/
-
-Image tools:
+Media tools:
 
 * [ImageMagick] for cropping and resizing images
+* [FFMPEG] for modifying audio files
+* [tesseract]
 
 Programming languages, package managers, and configuration:
 

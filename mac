@@ -117,21 +117,29 @@ tap "caskroom/cask"
 tap "heroku/brew"
 
 # Unix
-brew "universal-ctags", args: ["HEAD"]
 brew "git"
 brew "openssl"
 brew "rcm"
 brew "reattach-to-user-namespace"
-brew "the_silver_searcher"
 brew "tmux"
-brew "watchman"
 brew "zsh"
+cask "osxfuse"
+brew "encfs"
 
-# GitHub
-brew "hub"
+# Text tools and writing
 
-# Image manipulation
+brew "pandoc"
+brew "pandoc-citeproc"
+brew "pandoc-crossref"
+brew "csvfix"
+
+# Geospatial tools
+brew "gdal"
+
+# Media tools
 brew "imagemagick"
+brew "ffmpeg"
+brew "tesseract"
 
 # Programming language prerequisites and package managers
 brew "libyaml" # should come after openssl
