@@ -1,0 +1,36 @@
+# Unix
+tap "universal-ctags/universal-ctags"
+brew "git"
+brew "openssl"
+brew "rcm"
+brew "reattach-to-user-namespace"
+brew "tmux"
+brew "zsh"
+
+# Text tools and writing
+
+brew "pandoc"
+brew "pandoc-citeproc"
+brew "pandoc-crossref"
+brew "csvfix"
+
+# Geospatial tools
+brew "gdal"
+
+# Media tools
+brew "imagemagick"
+brew "ffmpeg"
+brew "tesseract"
+
+# Programming language prerequisites and package managers
+brew "libyaml" # should come after openssl
+brew "coreutils"
+brew "yarn"
+cask "gpg-suite"
+
+# Blogging / Web tools
+brew "hugo"
+
+# Applications
+cask 'firefox'
+cask 'iterm2'
