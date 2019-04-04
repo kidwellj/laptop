@@ -1,13 +1,13 @@
 Laptop
 ======
 
-I've forked this script from https://github.com/thoughtbot/laptop. It is a script to set up an macOS laptop for web and mobile development.
+I've forked this script from <https://github.com/thoughtbot/laptop>. It is a script to set up an macOS laptop for web and mobile development. Subsequent changes have been integrated from <https://github.com/monfresh/laptop> as well.
 
 It can be run multiple times on the same machine safely.
 It installs, upgrades, or skips packages
 based on what is already installed on the machine.
 
-Note: I have modified this version to suit my own requirements, which tend towards a hybrid of coding (in R and Python) and academic writing.
+Note: I have modified this version to suit my own requirements, which tend towards a hybrid of coding for data science (in R and Python), web publishing and academic writing.
 
 Requirements
 ------------
@@ -81,9 +81,6 @@ Unix tools:
 * [RCM] for managing company and personal dotfiles
 * [Tmux] for saving project state and switching between projects
 * [Zsh] as your shell
-* [osxfuse]
-* [encfs]
-
 
 [Git]: https://git-scm.com/
 [OpenSSL]: https://www.openssl.org/
@@ -116,6 +113,7 @@ Programming languages, package managers, and configuration:
 * [Node.js] and [NPM], for running apps and installing JavaScript packages
 * [Ruby] stable for writing general-purpose code
 * [Yarn] for managing JavaScript packages
+* [R] and [Python] for data science
 
 [Bundler]: http://bundler.io/
 [ImageMagick]: http://www.imagemagick.org/
@@ -128,9 +126,11 @@ Programming languages, package managers, and configuration:
 Databases:
 
 * [Postgres] for storing relational data
+* [PostGIS] extensions for geospatial data
 * [Redis] for storing key-value data
 
 [Postgres]: http://www.postgresql.org/
+[PostGIS]: https://postgis.net/
 [Redis]: http://redis.io/
 
 It should take less than 15 minutes to install (depends on your machine).

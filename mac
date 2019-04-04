@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
-# Welcome to the thoughtbot laptop script!
-# Be prepared to turn your laptop (or desktop, no haters here)
+# Welcome to the monfresh laptop script!
+# Be prepared to turn your laptop (or desktop)
 # into an awesome development machine.
 
 fancy_echo() {
@@ -11,23 +11,39 @@ fancy_echo() {
   printf "\\n$fmt\\n" "$@"
 }
 
-append_to_zshrc() {
-  local text="$1" zshrc
-  local skip_new_line="${2:-0}"
+append_to_file() {
+  local file="$1"
+  local text="$2"
 
-  if [ -w "$HOME/.zshrc.local" ]; then
-    zshrc="$HOME/.zshrc.local"
-  else
-    zshrc="$HOME/.zshrc"
+  if ! grep -qs "^$text$" "$file"; then
+    printf "\\n%s\\n" "$text" >> "$file"
+  fi
+}
+
+create_zshrc_and_set_it_as_shell_file() {
+  if [ ! -f "$HOME/.zshrc" ]; then
+    touch "$HOME/.zshrc"
   fi
 
-  if ! grep -Fqs "$text" "$zshrc"; then
-    if [ "$skip_new_line" -eq 1 ]; then
-      printf "%s\\n" "$text" >> "$zshrc"
-    else
-      printf "\\n%s\\n" "$text" >> "$zshrc"
-    fi
+  shell_file="$HOME/.zshrc"
+}
+
+create_bash_profile_and_set_it_as_shell_file() {
+  if [ ! -f "$HOME/.bash_profile" ]; then
+    touch "$HOME/.bash_profile"
   fi
+
+  shell_file="$HOME/.bash_profile"
+}
+
+change_shell_to_zsh() {
+  fancy_echo "Please enter your password to continue."
+  echo "Note that there won't be visual feedback when you type your password."
+  echo "Type it slowly and press return, or press control-c to cancel the switch to zsh and exit the script."
+  create_zshrc_and_set_it_as_shell_file
+  chsh -s "$(command -v zsh)"
+  echo "Note that you can always switch back to ${bold}bash${normal} if you change your mind."
+  echo "The instructions for changing shells manually are available in the README."
 }
 
 # shellcheck disable=SC2154
@@ -39,166 +55,227 @@ if [ ! -d "$HOME/.bin/" ]; then
   mkdir "$HOME/.bin"
 fi
 
-if [ ! -f "$HOME/.zshrc" ]; then
-  touch "$HOME/.zshrc"
-fi
-
-# shellcheck disable=SC2016
-append_to_zshrc 'export PATH="$HOME/.bin:$PATH"'
-
-HOMEBREW_PREFIX="/usr/local"
-
-if [ -d "$HOMEBREW_PREFIX" ]; then
-  if ! [ -r "$HOMEBREW_PREFIX" ]; then
-    sudo chown -R "$LOGNAME:admin" /usr/local
-  fi
-else
-  sudo mkdir "$HOMEBREW_PREFIX"
-  sudo chflags norestricted "$HOMEBREW_PREFIX"
-  sudo chown -R "$LOGNAME:admin" "$HOMEBREW_PREFIX"
-fi
-
-update_shell() {
-  local shell_path;
-  shell_path="$(command -v zsh)"
-
-  fancy_echo "Changing your shell to zsh ..."
-  if ! grep "$shell_path" /etc/shells > /dev/null 2>&1 ; then
-    fancy_echo "Adding '$shell_path' to /etc/shells"
-    sudo sh -c "echo $shell_path >> /etc/shells"
-  fi
-  sudo chsh -s "$shell_path" "$USER"
-}
-
 case "$SHELL" in
-  */zsh)
-    if [ "$(command -v zsh)" != '/usr/local/bin/zsh' ] ; then
-      update_shell
-    fi
+  */zsh) :
+    create_zshrc_and_set_it_as_shell_file
     ;;
   *)
-    update_shell
+    create_bash_profile_and_set_it_as_shell_file
+    if [ -z "$CI" ]; then
+      bold=$(tput bold)
+      normal=$(tput sgr0)
+      echo "Want to switch your shell from the default ${bold}bash${normal} to ${bold}zsh${normal}?"
+      echo "Both work fine for development, and ${bold}zsh${normal} has some extra "
+      echo "features for customization and tab completion."
+      echo "If you aren't sure or don't care, we recommend ${bold}zsh${normal}."
+      echo -n "Press ${bold}y${normal} to switch to zsh, ${bold}n${normal} to keep bash: "
+      read -r -n 1 response
+      if [ "$response" = "y" ]; then
+        fancy_echo "=== Getting ready to change your shell to zsh. ==="
+        if ! grep -qs "$(command -v zsh)" /etc/shells; then
+          echo "It looks like your version of zsh is missing from ${bold}/etc/shells${normal}."
+          echo "It must be added there manually before your shell can be changed."
+          echo "Open ${bold}/etc/shells${normal} with your favorite text editor,"
+          echo "then add ${bold}$(command -v zsh)${normal} in a new line and save the file."
+          echo -n "Once you've added it, press ${bold}y${normal} to continue, or ${bold}n${normal} to cancel: "
+          read -r -n 1 response
+          if [ "$response" = "y" ]; then
+            change_shell_to_zsh
+          else
+            fancy_echo "Shell will not be changed."
+          fi
+        else
+          change_shell_to_zsh
+        fi
+      else
+        fancy_echo "Shell will not be changed."
+      fi
+    else
+      fancy_echo "CI System detected, will not change shells"
+    fi
     ;;
 esac
 
+brew_is_installed() {
+  brew list -1 | grep -Fqx "$1"
+}
+
+tap_is_installed() {
+  brew tap -1 | grep -Fqx "$1"
+}
+
 gem_install_or_update() {
-  if gem list "$1" --installed > /dev/null; then
+  if gem list "$1" | grep "^$1 ("; then
+    fancy_echo "Updating %s ..." "$1"
     gem update "$@"
   else
+    fancy_echo "Installing %s ..." "$1"
     gem install "$@"
   fi
 }
+
+app_is_installed() {
+  local app_name
+  app_name=$(echo "$1" | cut -d'-' -f1)
+  find /Applications -iname "$app_name*" -maxdepth 1 | grep -E '.app' > /dev/null
+}
+
+latest_installed_ruby() {
+  find "$HOME/.rubies" -maxdepth 1 -name 'ruby-*' | tail -n1 | grep -E -o '\d+\.\d+\.\d+'
+}
+
+switch_to_latest_ruby() {
+  # shellcheck disable=SC1091
+  . /usr/local/share/chruby/chruby.sh
+  chruby "ruby-$(latest_installed_ruby)"
+}
+
+append_to_file "$shell_file" "alias laptop='bash <(curl -s https://raw.githubusercontent.com/monfresh/laptop/master/laptop)'"
+
+# shellcheck disable=SC2016
+append_to_file "$shell_file" 'export PATH="$HOME/.bin:$PATH"'
 
 if ! command -v brew >/dev/null; then
   fancy_echo "Installing Homebrew ..."
     curl -fsS \
       'https://raw.githubusercontent.com/Homebrew/install/master/install' | ruby
 
-    append_to_zshrc '# recommended by brew doctor'
-
     # shellcheck disable=SC2016
-    append_to_zshrc 'export PATH="/usr/local/bin:$PATH"' 1
-
-    export PATH="/usr/local/bin:$PATH"
+    append_to_file "$shell_file" 'export PATH="/usr/local/bin:$PATH"'
+else
+  fancy_echo "Homebrew already installed. Skipping ..."
 fi
 
-if brew list | grep -Fq brew-cask; then
-  fancy_echo "Uninstalling old Homebrew-Cask ..."
-  brew uninstall --force brew-cask
+# Remove brew-cask since it is now installed as part of brew tap caskroom/cask.
+# See https://github.com/caskroom/homebrew-cask/releases/tag/v0.60.0
+if brew_is_installed 'brew-cask'; then
+  brew uninstall --force 'brew-cask'
 fi
 
-fancy_echo "Updating Homebrew formulae ..."
-brew update --force # https://github.com/Homebrew/brew/issues/1151
-brew bundle --file=- <<EOF
-tap "thoughtbot/formulae"
-tap "homebrew/services"
-tap "universal-ctags/universal-ctags"
-tap "caskroom/cask"
-tap "heroku/brew"
+if tap_is_installed 'caskroom/versions'; then
+  brew untap caskroom/versions
+fi
 
-# Unix
-brew "git"
-brew "openssl"
-brew "rcm"
-brew "reattach-to-user-namespace"
-brew "tmux"
-brew "zsh"
-cask "osxfuse"
-brew "encfs"
+fancy_echo "Updating Homebrew ..."
+cd "$(brew --repo)" && git fetch && git reset --hard origin/master && brew update
 
-# Text tools and writing
+fancy_echo "Verifying the Homebrew installation..."
+if brew doctor; then
+  fancy_echo "Your Homebrew installation is good to go."
+else
+  fancy_echo "Your Homebrew installation reported some errors or warnings."
+  echo "Review the Homebrew messages to see if any action is needed."
+fi
 
-brew "pandoc"
-brew "pandoc-citeproc"
-brew "pandoc-crossref"
-brew "csvfix"
+fancy_echo "Installing formulas and casks from the Brewfile ..."
+if brew bundle --file="$HOME/Brewfile"; then
+  fancy_echo "All formulas and casks were installed successfully."
+else
+  fancy_echo "Some formulas or casks failed to install."
+  echo "This is usually due to one of the Mac apps being already installed,"
+  echo "in which case, you can ignore these errors."
+fi
 
-# Geospatial tools
-brew "gdal"
+# shellcheck disable=SC2016
+append_to_file "$shell_file" 'eval "$(hub alias -s)"'
 
-# Media tools
-brew "imagemagick"
-brew "ffmpeg"
-brew "tesseract"
+append_to_file "$HOME/.gemrc" 'gem: --no-document'
 
-# Programming language prerequisites and package managers
-brew "libyaml" # should come after openssl
-brew "coreutils"
-brew "yarn"
-cask "gpg-suite"
+if command -v rbenv >/dev/null || command -v rvm >/dev/null; then
+  fancy_echo 'We recommend chruby and ruby-install over RVM or rbenv'
+else
+  if ! brew_is_installed "chruby"; then
+    fancy_echo 'Installing chruby, ruby-install, and the latest Ruby...'
 
-# Databases
-brew "postgres", restart_service: :changed
-brew "redis", restart_service: :changed
+    brew bundle --file=- <<EOF
+    brew 'chruby'
+    brew 'ruby-install'
 EOF
 
-fancy_echo "Configuring asdf version manager ..."
-if [ ! -d "$HOME/.asdf" ]; then
-  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.5.0
-  append_to_zshrc "source $HOME/.asdf/asdf.sh" 1
+    append_to_file "$shell_file" 'source /usr/local/share/chruby/chruby.sh'
+    append_to_file "$shell_file" 'source /usr/local/share/chruby/auto.sh'
+
+    ruby-install ruby
+
+    append_to_file "$shell_file" "chruby ruby-$(latest_installed_ruby)"
+
+    switch_to_latest_ruby
+  else
+    brew bundle --file=- <<EOF
+    brew 'chruby'
+    brew 'ruby-install'
+EOF
+    fancy_echo 'Checking if a newer version of Ruby is available...'
+    switch_to_latest_ruby
+
+    ruby-install --latest > /dev/null
+    latest_stable_ruby="$(cat < "$HOME/.cache/ruby-install/ruby/stable.txt" | tail -n1)"
+
+    if ! [ "$latest_stable_ruby" = "$(latest_installed_ruby)" ]; then
+      fancy_echo "Installing latest stable Ruby version: $latest_stable_ruby"
+      ruby-install ruby
+    else
+      fancy_echo 'You have the latest version of Ruby'
+    fi
+  fi
 fi
 
-alias install_asdf_plugin=add_or_update_asdf_plugin
-add_or_update_asdf_plugin() {
-  local name="$1"
-  local url="$2"
-
-  if ! asdf plugin-list | grep -Fq "$name"; then
-    asdf plugin-add "$name" "$url"
-  else
-    asdf plugin-update "$name"
-  fi
-}
-
-# shellcheck disable=SC1090
-source "$HOME/.asdf/asdf.sh"
-add_or_update_asdf_plugin "ruby" "https://github.com/asdf-vm/asdf-ruby.git"
-add_or_update_asdf_plugin "nodejs" "https://github.com/asdf-vm/asdf-nodejs.git"
-
-install_asdf_language() {
-  local language="$1"
-  local version
-  version="$(asdf list-all "$language" | grep -v "[a-z]" | tail -1)"
-
-  if ! asdf list "$language" | grep -Fq "$version"; then
-    asdf install "$language" "$version"
-    asdf global "$language" "$version"
-  fi
-}
-
-fancy_echo "Installing latest Ruby ..."
-install_asdf_language "ruby"
+fancy_echo 'Updating Rubygems...'
 gem update --system
-gem_install_or_update "bundler"
+
+gem_install_or_update 'bundler'
+
+fancy_echo "Configuring Bundler ..."
 number_of_cores=$(sysctl -n hw.ncpu)
 bundle config --global jobs $((number_of_cores - 1))
 
-fancy_echo "Installing latest Node ..."
-bash "$HOME/.asdf/plugins/nodejs/bin/import-release-team-keyring"
-install_asdf_language "nodejs"
+fancy_echo '...Finished Ruby installation checks.'
+
+no_prompt_customizations_in_shell_file() {
+  ! grep -qs -e "PS1=" -e "precmd" -e "PROMPT=" "$shell_file"
+}
+
+no_zsh_frameworks() {
+  [ ! -d "$HOME/.oh-my-zsh" ] && [ ! -d "$HOME/.zpresto" ] && [ ! -d "$HOME/.zim" ] && [ ! -d "$HOME/.zplug" ]
+}
+
+if [ -z "$CI" ] && no_zsh_frameworks && no_prompt_customizations_in_shell_file; then
+  echo -n "Would you like to customize your prompt to display the current directory and ruby version? [y/n]: "
+  read -r -n 1 response
+  if [ "$response" = "y" ]; then
+    if ! grep -qs "prompt_ruby_info()" "$shell_file"; then
+      cat <<EOT >> "$shell_file"
+
+  prompt_ruby_info() {
+    echo $(ruby -v | grep -o 'ruby [^\( ]*')
+  }
+EOT
+    fi
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'GREEN=$(tput setaf 65)'
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'ORANGE=$(tput setaf 166)'
+    # shellcheck disable=SC2016
+    append_to_file "$shell_file" 'NORMAL=$(tput sgr0)'
+    # display pwd in orange, current ruby version in green,
+    # and set prompt character to $
+    # shellcheck disable=SC2016
+    if [ "$shell_file" = "$HOME/.bash_profile" ]; then
+      append_to_file "$shell_file" 'export PS1="${ORANGE}[\w] ${GREEN}$(prompt_ruby_info) ${NORMAL}$ "'
+    else
+      append_to_file "$shell_file" 'precmd () { PS1="${ORANGE}[%~] ${GREEN}$(prompt_ruby_info) ${NORMAL}$ " }'
+    fi
+    # display directories and files in different colors when running ls
+    append_to_file "$shell_file" 'export CLICOLOR=1;'
+    append_to_file "$shell_file" 'export LSCOLORS=exfxcxdxbxegedabagacad;'
+  else
+    fancy_echo "Skipping prompt customization."
+  fi
+fi
 
 if [ -f "$HOME/.laptop.local" ]; then
-  fancy_echo "Running your customizations from ~/.laptop.local ..."
-  # shellcheck disable=SC1090
+  # shellcheck source=/dev/null
   . "$HOME/.laptop.local"
 fi
+
+fancy_echo 'All done!'
