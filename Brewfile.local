@@ -1,36 +1,75 @@
 # Unix
-tap "universal-ctags/universal-ctags"
-brew "git"
-brew "openssl"
-brew "rcm"
-brew "reattach-to-user-namespace"
-brew "tmux"
-brew "zsh"
+tap 'universal-ctags/universal-ctags'
+brew 'git'
+brew 'openssl'
+brew 'rcm'
+brew 'reattach-to-user-namespace'
+brew 'tmux'
+brew 'zsh'
+brew 'tldr'
+brew 'xz' # General-purpose data compression with high compression ratio
+brew 'the_silver_searcher'
+brew 'prettyping' # Wrapper to colorize and simplify ping's output
+brew 'ncdu' # NCurses Disk Usage
+brew 'noti' # Trigger notifications when a process completes
+brew 'htop' # Improved top
+brew 'fzf' # Command-line fuzzy finder
+brew 'fd' # Simple, fast and user-friendly alternative to find
+brew 'diff-so-fancy'
+brew 'bat' # Clone of cat(1) with syntax highlighting and Git integration
 
 # Text tools and writing
 
-brew "pandoc"
-brew "pandoc-citeproc"
-brew "pandoc-crossref"
-brew "csvfix"
+brew 'pandoc'
+cask 'mactex'
+brew 'pandoc-citeproc'
+brew 'pandoc-crossref'
+brew 'csvfix'
+brew 'bib-tool'
 
 # Geospatial tools
-brew "gdal"
+brew 'gdal'
 
 # Media tools
-brew "imagemagick"
-brew "ffmpeg"
-brew "tesseract"
+brew 'imagemagick'
+brew 'ffmpeg'
+brew 'tesseract'
 
 # Programming language prerequisites and package managers
-brew "libyaml" # should come after openssl
-brew "coreutils"
-brew "yarn"
-cask "gpg-suite"
+brew 'libyaml' # should come after openssl
+brew 'coreutils'
+brew 'yarn'
+cask 'gpg-suite'
 
 # Blogging / Web tools
-brew "hugo"
+brew 'hugo'
 
 # Applications
 cask 'firefox'
 cask 'iterm2'
+cask 'font-ia-writer-quattro'
+cask 'sublime-text'
+cask 'omnigraffle'
+cask 'omnioutliner'
+cask 'bibdesk'
+cask '1password'
+cask 'devonthink-pro-office'
+cask 'djview'
+cask 'nextcloud'
+cask 'nvalt'
+cask 'marked'
+cask 'scrivener'
+brew 'r'
+cask 'rstudio'
+cask 'virtualbox'
+cask 'skype'
+cask 'dropbox'
+cask 'sequel-pro'
+cask 'calibre'
+cask 'skim'
+cask 'keybase'
+cask 'signal'
+cask 'riot'
+cask 'taskpaper'
+cask 'textexpander'
+cask 'private-internet-access'
