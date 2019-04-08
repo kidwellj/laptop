@@ -1,13 +1,21 @@
-Laptop
+Auto-Config
 ======
 
-I've forked this script from <https://github.com/thoughtbot/laptop>. It is a script to set up an macOS laptop for web and mobile development. Subsequent changes have been integrated from <https://github.com/monfresh/laptop> as well.
+Fair warning, this is very much still experimental and not in regular use. My goal here is to put together a script that can be used to configure a brand new macOS laptop/desktop computer with all the necessary (mostly open source) tools to do my work. This is mostly academic writing (using sublime text, pandoc and marked), data science (in R and Python), a fair bit of command-line work in iTerm and web publishing.
 
-It can be run multiple times on the same machine safely.
-It installs, upgrades, or skips packages
-based on what is already installed on the machine.
+This is a mashup of various scripts out in the wild. I suggest that an curious individual consult a few websites to get a proper briefing on how dotfiles/laptop configuration scriptus work:
 
-Note: I have modified this version to suit my own requirements, which tend towards a hybrid of coding for data science (in R and Python), web publishing and academic writing.
+- <http://dotfiles.github.io/>
+- <https://github.com/webpro/awesome-dotfiles>
+
+My main forks for this script come from:
+
+- <https://github.com/thoughtbot/laptop> for the initial work
+- Subsequent changes to this script have been integrated from <https://github.com/monfresh/laptop> as well, particularly for the python environment and homebrew installs.
+- Sensible defaults for macos automated by <https://github.com/mathiasbynens/dotfiles>
+- Templates for pandoc from <https://github.com/kjhealy/pandoc-templates>
+
+At least in principle, it can be run multiple times on the same machine safely. It installs, upgrades, or skips packages based on what is already installed on the machine.
 
 Requirements
 ------------
@@ -51,10 +59,6 @@ Optionally, review the log:
 less ~/laptop.log
 ```
 
-I also use a [dotfiles script][jkdotfiles] which is a fork of [thoughtbot/dotfiles][dotfiles].
-
-[dotfiles]: https://github.com/thoughtbot/dotfiles#install
-[jkdotfiles]: https://github.com/kidwellj/dotfiles#install
 
 Debugging
 ---------
@@ -188,49 +192,10 @@ can be used in your `~/.laptop.local`.
 See the [wiki](https://github.com/thoughtbot/laptop/wiki)
 for more customization examples.
 
-Contributing
-------------
-
-Edit the `mac` file.
-Document in the `README.md` file.
-Follow shell style guidelines by using [ShellCheck] and [Syntastic].
-
-```sh
-brew install shellcheck
-```
-
-[ShellCheck]: http://www.shellcheck.net/about.html
-[Syntastic]: https://github.com/scrooloose/syntastic
-
-Thank you, [contributors]!
-
-[contributors]: https://github.com/thoughtbot/laptop/graphs/contributors
-
-By participating in this project,
-you agree to abide by the thoughtbot [code of conduct].
-
-[code of conduct]: https://thoughtbot.com/open-source-code-of-conduct
 
 License
 -------
 
-Laptop is © 2011-2018 thoughtbot, inc.
-It is free software,
-and may be redistributed under the terms specified in the [LICENSE] file.
+Part of this script are covered by a creative commons license by thoughtbot, inc. Those bits are nonetheless free software and may be redistributed under the terms specified in the [LICENSE] file.
 
 [LICENSE]: LICENSE
-
-About thoughtbot
-----------------
-
-![thoughtbot](http://presskit.thoughtbot.com/images/thoughtbot-logo-for-readmes.svg)
-
-Laptop is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We are passionate about open source software.
-See [our other projects][community].
-We are [available for hire][hire].
-
-[community]: https://thoughtbot.com/community?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
